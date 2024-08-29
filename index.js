@@ -150,7 +150,7 @@ class tagJS {
       e.preventDefault()
     } 
   }
-  createTag(tagText) {
+  createTag(enter = false) {
     let min,max= 0
     if(currentPos -1 < this.modifierPosition) {
       min = this.modifierPosition+1
@@ -161,7 +161,7 @@ class tagJS {
       max = this.modifierPosition+this.tagLen
     }
 
-    // let tagText = this.inputDiv.innerText.substring(min, max).trim()
+    let tagText = this.inputDiv.innerText.substring(min, max).trim()
     let tagName = tagText
     let tagVals = []
     if(this.tagProperties == true && tagText.includes(this.tagPropertyDelim)) {
