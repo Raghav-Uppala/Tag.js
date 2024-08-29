@@ -38,6 +38,8 @@
       whitelist: true,
       repeatedTags: true,
       acceptedTags: ["test", "test1"],
+      tagProperties: true,
+      tagPropertyDelim: ":",
       onSubmit: function(query) {document.querySelector("#result").innerText = query.searchQuery + " " + JSON.stringify(query.tags)}
     })
     test.runFunction()

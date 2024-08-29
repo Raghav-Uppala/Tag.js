@@ -11,6 +11,8 @@ class tagJS {
     this.repeatedTags = details.repeatedTags || false
     this.tagClassName = details.tagClassName || "tag"
     this.inputDivClassName = details.inputDivClassName || "inputDiv"
+    this.tagProperties = details.tagProperties || false
+    this.tagPropertyDelim = details.tagPropertyDelim || ":"
     this.onSubmit = details.onSubmit || function(x) {};
     
     let inputDiv = document.createElement('div')
@@ -148,9 +150,9 @@ class tagJS {
       e.preventDefault()
     } 
   }
-  createTag(enter=false) {
+  createTag(tagText) {
     let min,max= 0
-    if(this.getCaretPosition()[0] -1 < this.modifierPosition) {
+    if(currentPos -1 < this.modifierPosition) {
       min = this.modifierPosition+1
       max = this.modifierPosition+this.tagLen+1
     }
@@ -159,27 +161,37 @@ class tagJS {
       max = this.modifierPosition+this.tagLen
     }
 
-    let tagText = this.inputDiv.innerText.substring(min, max).trim()
-
-    if(this.whitelist == true && !this.acceptedTags.includes(tagText)) {
-      console.log("not whitlisted")
-      return;
+    // let tagText = this.inputDiv.innerText.substring(min, max).trim()
+    let tagName = tagText
+    let tagVals = []
+    if(this.tagProperties == true && tagText.includes(this.tagPropertyDelim)) {
+      [tagName, tagVals] = tagText.split(this.tagPropertyDelim)
+      tagVals = tagVals.split(",").map(elem => elem.trim());
+    }
+    console.log(tagText, [tagName], tagVals, this.acceptedTags)
+    if(this.whitelist == true) {
+      // let acceptedTag = false
+      // if(this.tagProperties)
+      if(!this.acceptedTags.includes(tagName)) {
+        console.log("not whitelisted")
+        return;
+      }
     }
 
     this.inputDiv.innerText = this.inputDiv.innerText.substring(0, min-1) + this.inputDiv.innerText.substring(max, this.inputDiv.innerText.length)
     this.setCaret(min-1)
 
-    if(this.repeatedTags == false && this.searchForArray(this.tags, [tagText, this.modifier]) > -1) {
+    if(this.repeatedTags == false && this.searchForArray(this.tags, [tagName, this.modifier, tagVals]) > -1) {
       console.log("repeated")
       return;
     }
 
-    this.addTag(tagText, this.modifier)
+    this.addTag(tagName, this.modifier, tagVals)
   }
-  addTag(tagText, modifier) {
-    this.tags.push([tagText, modifier])
+  addTag(tagText, modifier, properties) {
+    this.tags.push([tagText, modifier, properties])
     let tag = document.createElement("div")
-    tag.innerHTML = tagText
+    tag.innerText = tagText + (properties.length != 0 ? ":"+properties : "")
     tag.className = this.tagClassName
     tag.id = "tag_"+(this.tags.length - 1)
     this.mainDiv.insertBefore(tag, this.inputDiv)
