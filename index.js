@@ -1,7 +1,4 @@
 class tagJS {
-  modifiers;
-  inputDiv;
-  modifierPosition
   constructor(input, details) {
     
     this.mainDiv = input
@@ -14,15 +11,20 @@ class tagJS {
     this.tagProperties = details.tagProperties || false
     this.tagPropertyDelim = details.tagPropertyDelim || ":"
     this.onSubmit = details.onSubmit || function(x) {};
-    
+    this.inputDivId = details.inputDivId || "inputDiv";
+    this.tagDelButton = details.tagDelButton || "&times"
+
     let inputDiv = document.createElement('div')
     inputDiv.contentEditable = true
     inputDiv.className = this.inputDivClassName
+    inputDiv.id = this.inputDivId
     input.appendChild(inputDiv)
 
     
     this.inputDiv = inputDiv
     this.tags = []
+    this.tagsids = [this.inputDivId]
+    this.focusElem = this.inputDiv
 
     this.modifier = ""
     this.modifierPosition = 0
@@ -56,7 +58,7 @@ class tagJS {
     sel.addRange(range)
   }
   getCaretPosition(){
-    let elem = this.inputDiv
+    let elem = document.activeElement
     var sel = window.getSelection();
     var cum_length = [0, 0];
     if(sel.anchorNode == elem)
@@ -152,7 +154,7 @@ class tagJS {
   }
   createTag(enter = false) {
     let min,max= 0
-    if(currentPos -1 < this.modifierPosition) {
+    if(this.getCaretPosition()[0] -1 < this.modifierPosition) {
       min = this.modifierPosition+1
       max = this.modifierPosition+this.tagLen+1
     }
@@ -168,14 +170,11 @@ class tagJS {
       [tagName, tagVals] = tagText.split(this.tagPropertyDelim)
       tagVals = tagVals.split(",").map(elem => elem.trim());
     }
-    console.log(tagText, [tagName], tagVals, this.acceptedTags)
-    if(this.whitelist == true) {
+    if(this.whitelist == true && !this.acceptedTags.includes(tagName)) {
       // let acceptedTag = false
       // if(this.tagProperties)
-      if(!this.acceptedTags.includes(tagName)) {
-        console.log("not whitelisted")
-        return;
-      }
+      console.log("not whitelisted")
+      return;
     }
 
     this.inputDiv.innerText = this.inputDiv.innerText.substring(0, min-1) + this.inputDiv.innerText.substring(max, this.inputDiv.innerText.length)
@@ -190,18 +189,79 @@ class tagJS {
   }
   addTag(tagText, modifier, properties) {
     this.tags.push([tagText, modifier, properties])
+    this.tagsids.splice(this.tagsids.length - 1, 0, "tag_"+(this.tags.length - 1))
     let tag = document.createElement("div")
-    tag.innerText = tagText + (properties.length != 0 ? ":"+properties : "")
+    
+    let tagbutton = document.createElement("div")
+    tagbutton.className = "tagDelButton"
+    tagbutton.innerHTML = this.tagDelButton
+    tagbutton.onclick = () => {this.removeTag(this.tags.length - 1)}
+
+    let tagContent = document.createElement("div")
+    tagContent.innerText = tagText + (properties.length != 0 ? ":"+properties : "")
+    tagContent.contentEditable = true
+    tagContent.id = "tag_"+(this.tags.length - 1)+"_editor"
+    
     tag.className = this.tagClassName
     tag.id = "tag_"+(this.tags.length - 1)
+    
     this.mainDiv.insertBefore(tag, this.inputDiv)
+    tag.prepend(tagbutton)
+    tag.append(tagContent)
   }
   returnQuery() {
     return {"searchQuery":this.inputDiv.innerText.trim(), "tags":this.tags}
   }
   removeTag(index) {
     this.tags.splice(index, 1)
+    this.tagsids.splice(index, 1)
     this.mainDiv.removeChild(this.mainDiv.querySelector('#tag_'+index))
+  }
+  changeFocus(num) {
+    let currentElm = this.focusElem
+    let currentElmId = this.focusElem.id
+    let currentElmIndex = this.tagsids.indexOf(currentElmId)
+    let newElemId
+    if(currentElmIndex+num < 0) {
+      newElemId = this.tagsids[this.tagsids.length + (currentElmIndex + num)]
+    } else if (currentElmIndex+num > this.tagsids.length - 1) {
+      newElemId = this.tagsids[(currentElmIndex + num - this.tagsids.length)]
+    }else {
+      newElemId = this.tagsids[currentElmIndex +num]
+    }
+
+    let newElem = this.mainDiv.querySelector("#"+newElemId)
+    this.focusElem = newElem
+    
+    if(newElemId.includes("tag_")) {
+      newElem = newElem.querySelector("#"+newElemId+"_editor")
+    }
+    if(currentElmId.includes("tag_")) {
+      currentElm = currentElm.querySelector("#"+currentElmId+"_editor")
+    }
+
+    newElem.contentEditable = true
+    currentElm.contentEditable = false
+    newElem.focus()
+  }
+  editTag(index, tagText) {
+    if(this.tags[index] == undefined) {
+      return;
+    }
+    let tagName = tagText
+    let tagVals = []
+    if(this.tagProperties == true && tagText.includes(this.tagPropertyDelim)) {
+      [tagName, tagVals] = tagText.split(this.tagPropertyDelim)
+      tagVals = tagVals.split(",").map(elem => elem.trim());
+    }
+    if(this.whitelist == true && !this.acceptedTags.includes(tagName)) {
+      console.log("not whitelisted")
+      return;
+    }
+    this.tags[index] = [tagName, this.modifier, tagVals]
+    let tag = document.querySelector("#tag_"+index)
+    console.log(tag)
+    tag.innerText = tagText + (tagVals.length != 0 ? ":"+tagVals : "")
   }
 
   runFunction() {
@@ -218,14 +278,37 @@ class tagJS {
         else {
           this.onSubmit(this.returnQuery())
         }
-        e.preventDefault()
+      }
+    });
+    this.mainDiv.addEventListener('keydown', (e) => {
+      if(this.tags.length > 0) {
+        if(e.key == "ArrowLeft") {
+          if(this.getCaretPosition()[0] == 0 && this.getCaretPosition()[1] == 0) {
+            this.changeFocus(-1)
+          }
+        }
+        if(e.key == "ArrowRight") {
+          if(this.getCaretPosition()[0] == document.activeElement.innerText.length && this.getCaretPosition()[1] == document.activeElement.innerText.length) {
+            this.changeFocus(1)
+          }
+        }
       }
       if(e.key == "Backspace"){
         if (this.getCaretPosition()[0] == 0 && this.getCaretPosition()[1] == 0 && this.tags.length > 0) {
-          this.removeTag(this.tags.length - 1)
+          if(this.focusElem == this.inputDiv) {
+            this.removeTag(this.tags.length - 1)
+          }
+          else {
+            console.log(this.focusElem)
+            this.removeTag(this.focusElem.id.split("_")[1])
+            this.changeFocus(-1)
+          }
           e.preventDefault()
           
         }
+      }
+      if(e.key == "Enter"){
+        e.preventDefault()
       }
     });
   }

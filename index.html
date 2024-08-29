@@ -9,17 +9,24 @@
 <body>
   <style>
     .tag {
-      background-color: grey;
-      width:max-content;
+      background-color: rgb(199, 199, 199);
+      display: flex;
       padding-left: 0.1em;
       padding-right: 0.1em;
       margin-left: 0.3em;
       margin-right: 0.3em;
     }
+    .tag .tagDelButton {
+      color:rgb(102, 101, 101);
+    }
+    .tag .tagDelButton:hover {
+      cursor: pointer;
+      color: #111
+    }
     .inputDiv{
       width:100%;
     }
-    .inputDiv:focus {
+    #input [contentEditable]:focus {
       outline:none;
     }
     #input {
@@ -40,6 +47,7 @@
       acceptedTags: ["test", "test1"],
       tagProperties: true,
       tagPropertyDelim: ":",
+      tagDelButton:"&times",
       onSubmit: function(query) {document.querySelector("#result").innerText = query.searchQuery + " " + JSON.stringify(query.tags)}
     })
     test.runFunction()
