@@ -3,18 +3,23 @@ class tagJS {
   inputDiv;
   modifierPosition
   constructor(input, details) {
-    let inputDiv = document.createElement('div')
-    inputDiv.contentEditable = true
-    input.appendChild(inputDiv)
     
     this.mainDiv = input
-    this.inputDiv = inputDiv
     this.modifiers = details.modifiers
     this.acceptedTags = details.acceptedTags || []
     this.whitelist = details.whitelist || false
     this.repeatedTags = details.repeatedTags || false
     this.tagClassName = details.tagClassName || "tag"
+    this.inputDivClassName = details.inputDivClassName || "inputDiv"
+    this.onSubmit = details.onSubmit || function(x) {};
+    
+    let inputDiv = document.createElement('div')
+    inputDiv.contentEditable = true
+    inputDiv.className = this.inputDivClassName
+    input.appendChild(inputDiv)
 
+    
+    this.inputDiv = inputDiv
     this.tags = []
 
     this.modifier = ""
@@ -23,12 +28,37 @@ class tagJS {
     this.escapeTag = false
     this.tagLen = 0
   }
+  setCaret(char, el=this.inputDiv) {
+    let range = document.createRange()
+    let sel = window.getSelection()
+    let elObj = el;
+    if(char == 'end') {
+      if(el.childNodes.length == 0) {
+        char = el.innerText.length
+      } else {
+        char = el.childNodes[0].data.length
+        elObj = el.childNodes[0]
+      }
+    }
+
+    if(elObj.childNodes.length == 0){
+      return;
+    }
+
+    // console.log(el.childNodes, char)
+    range.setStart(elObj.childNodes[0], char)
+    // range.setEnd(elObj, 1)
+    range.collapse(true)
+    
+    sel.removeAllRanges()
+    sel.addRange(range)
+  }
   getCaretPosition(){
     let elem = this.inputDiv
     var sel = window.getSelection();
     var cum_length = [0, 0];
     if(sel.anchorNode == elem)
-      cum_length = [sel.anchorOffset, sel.focusNode];
+      cum_length = [sel.anchorOffset, sel.focusOffset, sel.focusNode];
     else {
       // console.log(sel.anchor)
       var nodes_to_find = [sel.anchorNode, sel.focusNode];
@@ -57,11 +87,8 @@ class tagJS {
         cum_length[1] += sel.focusOffset;
       }
     }
-    // console.log(sel.anchorNode,sel.focusOffset, "CUM_LENGTH")
-    if(cum_length[0] <= cum_length[1]) {
-      return cum_length;
-    }
-    return [cum_length[0], cum_length[1]];
+
+    return cum_length;
   }
   node_walk(node, func) {
     var result = func(node);
@@ -132,7 +159,7 @@ class tagJS {
       max = this.modifierPosition+this.tagLen
     }
 
-    let tagText = this.inputDiv.innerText.substring(min, max)
+    let tagText = this.inputDiv.innerText.substring(min, max).trim()
 
     if(this.whitelist == true && !this.acceptedTags.includes(tagText)) {
       console.log("not whitlisted")
@@ -140,6 +167,7 @@ class tagJS {
     }
 
     this.inputDiv.innerText = this.inputDiv.innerText.substring(0, min-1) + this.inputDiv.innerText.substring(max, this.inputDiv.innerText.length)
+    this.setCaret(min-1)
 
     if(this.repeatedTags == false && this.searchForArray(this.tags, [tagText, this.modifier]) > -1) {
       console.log("repeated")
@@ -149,13 +177,19 @@ class tagJS {
     this.addTag(tagText, this.modifier)
   }
   addTag(tagText, modifier) {
-    console.log(2, this.tags, this.tags.length)
     this.tags.push([tagText, modifier])
-    console.log(3, this.tags, this.tags.length)
     let tag = document.createElement("div")
     tag.innerHTML = tagText
     tag.className = this.tagClassName
+    tag.id = "tag_"+(this.tags.length - 1)
     this.mainDiv.insertBefore(tag, this.inputDiv)
+  }
+  returnQuery() {
+    return {"searchQuery":this.inputDiv.innerText.trim(), "tags":this.tags}
+  }
+  removeTag(index) {
+    this.tags.splice(index, 1)
+    this.mainDiv.removeChild(this.mainDiv.querySelector('#tag_'+index))
   }
 
   runFunction() {
@@ -169,7 +203,17 @@ class tagJS {
           this.tagLen = 0
           this.tag = false
         }
+        else {
+          this.onSubmit(this.returnQuery())
+        }
         e.preventDefault()
+      }
+      if(e.key == "Backspace"){
+        if (this.getCaretPosition()[0] == 0 && this.getCaretPosition()[1] == 0 && this.tags.length > 0) {
+          this.removeTag(this.tags.length - 1)
+          e.preventDefault()
+          
+        }
       }
     });
   }
