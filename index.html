@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js"></script>
+</head>
+<body>
+  <div>
+    hello world
+  </div>
+  <div id="input"></div>
+  <script>
+    let input = document.querySelector('#input')
+    let test = new tagJS(input, {
+      modifiers: ["@"],
+      whitelist: true,
+      repeatedTags: false,
+      acceptedTags: ["test", "test1"]
+    })
+    test.runFunction()
+
+  </script>
+</body>
+</html>
