@@ -46,6 +46,11 @@ class tagJS {
     this.escapeTag = false
     this.tagLen = 0
     this.runFunction()
+    
+    this.addCSS(`.`+this.tagClassName+` {display: flex;}`)
+    this.mainDiv.style["display"] = "flex"
+    this.inputDiv.style["width"] = "100%"
+
   }
   setCaret(char, el=this.inputDiv) {
     let range = document.createRange()
@@ -228,7 +233,6 @@ class tagJS {
     return {"inputStr":this.inputDiv.innerText.trim(), "tags":this.tags}
   }
   removeTag(index) {
-    this.changeFocus(-1)
     this.tags.splice(index, 1)
     this.tagsids.splice(index, 1)
     this.mainDiv.removeChild(this.mainDiv.querySelector('#tag_'+index))
@@ -263,8 +267,8 @@ class tagJS {
       this.focusElem = newElem
     }
 
-    newElem.contentEditable = true
-    currentElm.contentEditable = false
+    // newElem.contentEditable = true
+    // currentElm.contentEditable = false
     newElem.focus()
   }
   editTag(index, tagText) {
@@ -286,6 +290,9 @@ class tagJS {
     }
     this.tags[index] = [tagName, this.modifier, tagVals]
     tag.innerText = tagName + (tagVals.length != 0 ? ":"+tagVals : "")
+  }
+  addCSS(css){
+    document.head.appendChild(document.createElement("style")).innerHTML=css
   }
 
   runFunction() {
@@ -323,7 +330,9 @@ class tagJS {
             this.removeTag(this.tags.length - 1)
           }
           else {
-            this.removeTag(this.focusElem.id.split("_")[1])
+            let index = this.focusElem.id.split("_")[1]
+            this.changeFocus(-1)
+            this.removeTag(index)
           }
           e.preventDefault()
           
