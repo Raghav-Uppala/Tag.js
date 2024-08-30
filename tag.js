@@ -45,12 +45,12 @@ class tagJS {
     this.tag = false
     this.escapeTag = false
     this.tagLen = 0
-    this.runFunction()
     
     this.addCSS(`.`+this.tagClassName+` {display: flex;}`)
     this.mainDiv.style["display"] = "flex"
     this.inputDiv.style["width"] = "100%"
 
+    this.runFunction()
   }
   setCaret(char, el=this.inputDiv) {
     let range = document.createRange()

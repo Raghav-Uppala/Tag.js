@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script content-type="application/javascript;charset=utf-8" src="https://cdn.jsdelivr.net/gh/Raghav-Uppala/Tag.js@main/tag.min.js"></script>
+  <!-- <script content-type="application/javascript;charset=utf-8" src="https://cdn.jsdelivr.net/gh/Raghav-Uppala/Tag.js@main/tag.min.js"></script> -->
+  <script src="./tag.js"></script>
 </head>
 <body>
   <style>
@@ -21,7 +22,6 @@
 
     .tag {
       background-color: rgb(199, 199, 199);
-      display: flex;
       padding-left: 0.1em;
       padding-right: 0.1em;
       margin-left: 0.3em;
@@ -34,14 +34,10 @@
       cursor: pointer;
       color: #111
     }
-    .inputDiv{
-      width:100%;
-    }
     #input [contentEditable]:focus {
       outline:none;
     }
     #input {
-      width:300px;
       border: 2px solid black;
     }
   </style>
