@@ -307,7 +307,7 @@ class tagJS {
           this.tag = false
         }
         else {
-          this.onSubmit(this.returnQuery())
+          this.onSubmit(this.returnString())
         }
       }
     });
