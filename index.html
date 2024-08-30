@@ -8,6 +8,17 @@
 </head>
 <body>
   <style>
+    body {
+      max-width: 70vw;
+      margin: auto;
+    }
+    #container {
+      display:flex;
+    }
+    #wrapper {
+      margin-left:5vw;
+    }
+
     .tag {
       background-color: rgb(199, 199, 199);
       display: flex;
@@ -30,27 +41,41 @@
       outline:none;
     }
     #input {
-      display:flex;
       width:300px;
       border: 2px solid black;
     }
   </style>
+  <h1>
+    Test Tag.js
+  </h1>
+  <div id="container">
+  <div id="text">
+  <p>
+    This is a basic usecase for Tag.js. <br>
+    Type @ followed by any of the tags and press enter.<br>
+    Tags: tag1, tag2, tag3
+  </p>
+  </div>
+  <br>
+  <div id="wrapper">
   <div id="result">
+    The result will be shown here, press enter to show
   </div>
   <div  id="input"></div>
+  </div>
+  </div>
   <script>
     let input = document.querySelector('#input')
     let test = new tagJS(input, {
       modifiers: ["@"],
       whitelist: true,
       repeatedTags: false,
-      acceptedTags: ["1", "2", "3"],
+      acceptedTags: ["tag1", "tag2", "tag3"],
       tagProperties: true,
       tagPropertyDelim: ":",
       tagDelButton:"&times",
       onSubmit: function(obj) {document.querySelector("#result").innerText = obj.inputStr + " " + JSON.stringify(obj.tags)}
     })
-    // test.runFunction()
   </script>
 </body>
 </html>
