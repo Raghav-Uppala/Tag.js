@@ -1,4 +1,4 @@
-# Tag.js: Small, Zero-depedency, Feature-rich Tag Editor
+# Tag.js: Small, Zero-depedency, Feature-rich Tagging System
 
 ## Add to Project
 ```
