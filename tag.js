@@ -1,11 +1,25 @@
+//   _______                _      
+//  |__   __|              (_)     
+//     | |  __ _   __ _     _  ___ 
+//     | | / _` | / _` |   | |/ __|
+//     | || (_| || (_| | _ | |\__ \
+//     |_| \__,_| \__, |(_)| ||___/
+//                 __/ |  _/ |     
+//                |___/  |__/      
+//
+//
+// A fast and powerful tag editor for search bars
+//
+// Copyright 2024, Raghav Uppala, All rights reserved.
+
 class tagJS {
   constructor(input, details) {
     
     this.mainDiv = input
-    this.modifiers = details.modifiers
+    this.modifiers = details.modifiers || ["@"]
     this.acceptedTags = details.acceptedTags || []
     this.whitelist = details.whitelist || false
-    this.repeatedTags = details.repeatedTags || false
+    this.repeatedTags = details.repeatedTags || []
     this.tagClassName = details.tagClassName || "tag"
     this.inputDivClassName = details.inputDivClassName || "inputDiv"
     this.tagProperties = details.tagProperties || false
@@ -31,6 +45,7 @@ class tagJS {
     this.tag = false
     this.escapeTag = false
     this.tagLen = 0
+    this.runFunction()
   }
   setCaret(char, el=this.inputDiv) {
     let range = document.createRange()
@@ -114,7 +129,7 @@ class tagJS {
   }
   onInput(e) {
     if(this.tag == true) {
-      if(this.getCaretPosition()[0] -1 < this.modifierPosition || this.escapeTag == true) {
+      if(this.getCaretPosition()[0] < this.modifierPosition || this.escapeTag == true) {
         this.tag = false
         
         if(e.inputType === 'deleteContentBackward' || e.inputType == "deleteContentForward") {
@@ -187,8 +202,8 @@ class tagJS {
 
     this.addTag(tagName, this.modifier, tagVals)
   }
-  addTag(tagText, modifier, properties) {
-    this.tags.push([tagText, modifier, properties])
+  addTag(tagName, modifier, properties) {
+    this.tags.push([tagName, modifier, properties])
     this.tagsids.splice(this.tagsids.length - 1, 0, "tag_"+(this.tags.length - 1))
     let tag = document.createElement("div")
     
@@ -198,7 +213,7 @@ class tagJS {
     tagbutton.onclick = () => {this.removeTag(this.tags.length - 1)}
 
     let tagContent = document.createElement("div")
-    tagContent.innerText = tagText + (properties.length != 0 ? ":"+properties : "")
+    tagContent.innerText = tagName + (properties.length != 0 ? ":"+properties : "")
     tagContent.contentEditable = true
     tagContent.id = "tag_"+(this.tags.length - 1)+"_editor"
     
@@ -209,8 +224,8 @@ class tagJS {
     tag.prepend(tagbutton)
     tag.append(tagContent)
   }
-  returnQuery() {
-    return {"searchQuery":this.inputDiv.innerText.trim(), "tags":this.tags}
+  returnString() {
+    return {"inputStr":this.inputDiv.innerText.trim(), "tags":this.tags}
   }
   removeTag(index) {
     this.tags.splice(index, 1)

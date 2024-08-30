@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="./index.js"></script>
+  <script src="./tag.js"></script>
 </head>
 <body>
   <style>
@@ -48,9 +48,9 @@
       tagProperties: true,
       tagPropertyDelim: ":",
       tagDelButton:"&times",
-      onSubmit: function(query) {document.querySelector("#result").innerText = query.searchQuery + " " + JSON.stringify(query.tags)}
+      onSubmit: function(obj) {document.querySelector("#result").innerText = obj.inputStr + " " + JSON.stringify(obj.tags)}
     })
-    test.runFunction()
+    // test.runFunction()
   </script>
 </body>
 </html>
