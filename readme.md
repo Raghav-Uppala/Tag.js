@@ -2,7 +2,7 @@
 
 ## Add to Project
 ```
-<script src="https://cdn.jsdelivr.net/gh/Raghav-Uppala/Tag.js@main/tag.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Raghav-Uppala/Tag.js@main/tag.min.js"></script>
 ```
 ## Basic Usage
 
