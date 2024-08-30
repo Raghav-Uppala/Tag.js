@@ -228,6 +228,7 @@ class tagJS {
     return {"inputStr":this.inputDiv.innerText.trim(), "tags":this.tags}
   }
   removeTag(index) {
+    this.changeFocus(-1)
     this.tags.splice(index, 1)
     this.tagsids.splice(index, 1)
     this.mainDiv.removeChild(this.mainDiv.querySelector('#tag_'+index))
@@ -323,7 +324,6 @@ class tagJS {
           }
           else {
             this.removeTag(this.focusElem.id.split("_")[1])
-            this.changeFocus(-1)
           }
           e.preventDefault()
           
