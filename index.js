@@ -217,27 +217,34 @@ class tagJS {
     this.tagsids.splice(index, 1)
     this.mainDiv.removeChild(this.mainDiv.querySelector('#tag_'+index))
   }
-  changeFocus(num) {
+  changeFocus(num, elem=false) {
     let currentElm = this.focusElem
     let currentElmId = this.focusElem.id
     let currentElmIndex = this.tagsids.indexOf(currentElmId)
-    let newElemId
-    if(currentElmIndex+num < 0) {
-      newElemId = this.tagsids[this.tagsids.length + (currentElmIndex + num)]
-    } else if (currentElmIndex+num > this.tagsids.length - 1) {
-      newElemId = this.tagsids[(currentElmIndex + num - this.tagsids.length)]
-    }else {
-      newElemId = this.tagsids[currentElmIndex +num]
-    }
+    let newElem;
+    if(elem == false) {
+      let newElemId
+      if(currentElmIndex+num < 0) {
+        newElemId = this.tagsids[this.tagsids.length + (currentElmIndex + num)]
+      } else if (currentElmIndex+num > this.tagsids.length - 1) {
+        newElemId = this.tagsids[(currentElmIndex + num - this.tagsids.length)]
+      }else {
+        newElemId = this.tagsids[currentElmIndex +num]
+      }
 
-    let newElem = this.mainDiv.querySelector("#"+newElemId)
-    this.focusElem = newElem
-    
-    if(newElemId.includes("tag_")) {
-      newElem = newElem.querySelector("#"+newElemId+"_editor")
-    }
-    if(currentElmId.includes("tag_")) {
-      currentElm = currentElm.querySelector("#"+currentElmId+"_editor")
+      newElem = this.mainDiv.querySelector("#"+newElemId)
+      this.focusElem = newElem
+
+      if(newElemId.includes("tag_")) {
+        newElem = newElem.querySelector("#"+newElemId+"_editor")
+      }
+      if(currentElmId.includes("tag_")) {
+        currentElm = currentElm.querySelector("#"+currentElmId+"_editor")
+        currentElm.innerText = this.tags[currentElmIndex][0] + (this.tags[currentElmIndex][2].length != 0 ? ":"+this.tags[currentElmIndex][2] : "")
+      }
+    } else {
+      newElem = elem
+      this.focusElem = newElem
     }
 
     newElem.contentEditable = true
@@ -250,18 +257,19 @@ class tagJS {
     }
     let tagName = tagText
     let tagVals = []
+    let tag = document.querySelector("#tag_"+index).querySelector("#tag_"+index+"_editor")
+
     if(this.tagProperties == true && tagText.includes(this.tagPropertyDelim)) {
       [tagName, tagVals] = tagText.split(this.tagPropertyDelim)
       tagVals = tagVals.split(",").map(elem => elem.trim());
     }
     if(this.whitelist == true && !this.acceptedTags.includes(tagName)) {
       console.log("not whitelisted")
+      tag.innerText = this.tags[index][0] + (this.tags[index][2].length != 0 ? ":"+this.tags[index][2] : "")
       return;
     }
     this.tags[index] = [tagName, this.modifier, tagVals]
-    let tag = document.querySelector("#tag_"+index)
-    console.log(tag)
-    tag.innerText = tagText + (tagVals.length != 0 ? ":"+tagVals : "")
+    tag.innerText = tagName + (tagVals.length != 0 ? ":"+tagVals : "")
   }
 
   runFunction() {
@@ -299,7 +307,6 @@ class tagJS {
             this.removeTag(this.tags.length - 1)
           }
           else {
-            console.log(this.focusElem)
             this.removeTag(this.focusElem.id.split("_")[1])
             this.changeFocus(-1)
           }
@@ -308,6 +315,11 @@ class tagJS {
         }
       }
       if(e.key == "Enter"){
+        if(document.activeElement.id.includes("tag")) {
+          let index = this.tagsids.indexOf(this.focusElem.id)
+          this.editTag(index, this.focusElem.querySelector("#tag_"+index+"_editor").innerText)
+          this.changeFocus(0, this.inputDiv)
+        }
         e.preventDefault()
       }
     });
