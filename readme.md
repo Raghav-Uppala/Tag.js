@@ -1,7 +1,9 @@
 # Tag.js: Small, Zero-depedency, Feature-rich Tag Editor
 
-## Installation
-
+## Add to Project
+```
+<script src="https://cdn.jsdelivr.net/gh/Raghav-Uppala/Tag.js@main/tag.js"></script>
+```
 ## Basic Usage
 
 For basic usage, instantiate the tagJS class with a div and any options.
